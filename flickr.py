@@ -16,7 +16,7 @@ from config import WIDTH
 load_dotenv()
 
 
-def download(url, directory, filename):
+def download_image(url, directory, filename):
     path = directory / filename
     print(f"downloading: {filename}")
     image = requests.get(url)
@@ -24,7 +24,7 @@ def download(url, directory, filename):
         f.write(image.content)
 
 
-def store(search_results):
+def handle_photos(search_results):
     if search_results["stat"] != "ok":
         return
 
@@ -39,10 +39,33 @@ def store(search_results):
             print(f"image already exists: {filename}")
             continue
         url = photo[SIZE]
-        download(url, IMAGES_PATH / orientation, filename)
+        download_image(url, IMAGES_PATH / orientation, filename)
 
 
-def run():
+def search(flickr, page=1):
+    search_results = flickr.photos.search(
+        text="cat",
+        tags="-lion",
+        per_page="100",
+        extras=SIZE,
+        content_types="0",
+        license="2,3,4,5,6,9",
+        sort="relevance",
+        page=page,
+    )
+    if search_results["stat"] != "ok":
+        return None
+    return search_results
+
+
+def get_number_pages(flickr):
+    search_results = search(flickr)
+    if search_results is None:
+        return None
+    return min(20, search_results["photos"]["pages"])
+
+
+def fetch():
     FLICKR_API_KEY = os.getenv("FLICKR_API_KEY")
     FLICKR_API_SECRET = os.getenv("FLICKR_API_SECRET")
 
@@ -53,32 +76,18 @@ def run():
         cache=True,
         token_cache_location="cache",
     )
-    search_results = flickr.photos.search(
-        text="cat",
-        tags="-lion",
-        per_page="100",
-        extras=SIZE,
-        content_types="0",
-        license="2,3,4,5,6,9",
-        sort="relevance",
-    )
-    if search_results["stat"] != "ok":
+
+    pages = get_number_pages(flickr)
+    if pages is None:
+        print("no pages")
         return
-    pages = min(20, search_results["photos"]["pages"])
-    for i in range(1, pages):
-        print(f"page {i}")
-        search_results = flickr.photos.search(
-            text="cat",
-            tags="-lion",
-            per_page="100",
-            page=i,
-            extras=SIZE,
-            content_types="0",
-            license="2,3,4,5,6,9",
-            sort="relevance",
-        )
-        store(search_results)
+
+    for page in range(1, pages):
+        print(f"page {page}")
+        search_results = search(flickr, page)
+        if search_results is not None:
+            handle_photos(search_results)
 
 
 if __name__ == "__main__":
-    run()
+    fetch()
