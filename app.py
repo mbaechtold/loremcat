@@ -19,6 +19,14 @@ def homepage():
     return send_from_directory(path, file.name)
 
 
+@app.route("/portrait")
+def homepage():
+    path = IMAGES_PATH / "portrait"
+    files = list(path.glob("*.jpg"))
+    file = random.choice(files)
+    return send_from_directory(path, file.name)
+
+
 @app.route("/download-images")
 def download_images():
     if os.getenv("ENABLE_DOWNLOAD_ROUTE") != "1":
