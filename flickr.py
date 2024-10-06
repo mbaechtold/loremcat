@@ -62,7 +62,10 @@ def get_number_pages(flickr):
     search_results = search(flickr)
     if search_results is None:
         return None
-    return min(20, search_results["photos"]["pages"])
+    return min(
+        int(os.getenv("FLICKR_NB_PAGES", 1)),
+        search_results["photos"]["pages"],
+    )
 
 
 def fetch():
@@ -82,7 +85,7 @@ def fetch():
         print("no pages")
         return
 
-    for page in range(1, pages):
+    for page in range(1, pages + 1):
         print(f"page {page}")
         search_results = search(flickr, page)
         if search_results is not None:
