@@ -19,7 +19,10 @@ load_dotenv()
 def download_image(url, directory, filename):
     path = directory / filename
     print(f"save image: {path}")
-    image = requests.get(url)
+    try:
+        image = requests.get(url)
+    except:
+        return
     with open(path, "wb") as f:
         f.write(image.content)
 
