@@ -20,7 +20,7 @@ def homepage():
 
 
 @app.route("/portrait")
-def homepage():
+def portrait():
     path = IMAGES_PATH / "portrait"
     files = list(path.glob("*.jpg"))
     file = random.choice(files)
