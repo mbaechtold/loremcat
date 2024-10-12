@@ -24,6 +24,7 @@ def download_image(url, directory, filename):
     try:
         image = requests.get(url)
     except:
+        print("image download failed")
         return
     with open(path, "wb") as f:
         f.write(image.content)
