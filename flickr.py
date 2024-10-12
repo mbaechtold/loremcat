@@ -17,6 +17,8 @@ load_dotenv()
 
 
 def download_image(url, directory, filename):
+    directory.mkdir(parents=True, exist_ok=True)
+
     path = directory / filename
     print(f"save image: {path}")
     try:
